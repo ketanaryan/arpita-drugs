@@ -1,17 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Replace these with your actual Supabase URL and public key
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://rmovllkwnypamcoivsrh.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtb3ZsbGt3bnlwYW1jb2l2c3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzODUwODUsImV4cCI6MjA3Mzk2MTA4NX0.6C3Wzb76AohvfOPjSyfMxmON8GcpOZyz22D87JOx-nY';
 
 // Create a single Supabase client for your app
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/**
- * Registers a new medicine batch in the Supabase database.
- * @param {string} batchId The unique ID for the batch.
- * @param {Array<Object>} medicines An array of medicine objects to be stored.
- */
 export const registerBatch = async (batchId, medicines) => {
     try {
         const { error } = await supabase
@@ -32,11 +27,6 @@ export const registerBatch = async (batchId, medicines) => {
     }
 };
 
-/**
- * Retrieves a full batch object from the Supabase database.
- * @param {string} batchId The unique ID of the batch to retrieve.
- * @returns {Promise<Object>} The full batch object, including medicines and status.
- */
 export const getBatch = async (batchId) => {
     try {
         const { data, error } = await supabase
@@ -46,12 +36,12 @@ export const getBatch = async (batchId) => {
             .single();
 
         if (error) {
-            if (error.code === 'PGRST116') { // Error code for "no rows found"
+            if (error.code === 'PGRST116') {
                 throw new Error("Batch not found.");
             }
             throw new Error(error.message);
         }
-        
+
         let currentStatus = data.status;
         const now = new Date();
         const isExpired = data.medicines.some(med => new Date(med.expiryDate) < now);
@@ -59,7 +49,7 @@ export const getBatch = async (batchId) => {
         if (isExpired) {
             currentStatus = "Expired";
         }
-        
+
         return { ...data, status: currentStatus };
 
     } catch (error) {
@@ -68,10 +58,6 @@ export const getBatch = async (batchId) => {
     }
 };
 
-/**
- * Updates a batch's status to "Recalled" in the Supabase database.
- * @param {string} batchId The unique ID of the batch to recall.
- */
 export const setRecalled = async (batchId) => {
     try {
         const { error } = await supabase
@@ -82,9 +68,9 @@ export const setRecalled = async (batchId) => {
         if (error) {
             throw new Error(error.message);
         }
-        
+
         return "Recalled";
-        
+
     } catch (error) {
         console.error("Supabase error during recall:", error);
         throw error;
