@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Replace these with your actual Supabase URL and public key
-const SUPABASE_URL = 'https://rmovllkwnypamcoivsrh.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtb3ZsbGt3bnlwYW1jb2l2c3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzODUwODUsImV4cCI6MjA3Mzk2MTA4NX0.6C3Wzb76AohvfOPjSyfMxmON8GcpOZyz22D87JOx-nY';
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
 // Create a single Supabase client for your app
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -14,12 +14,11 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  */
 export const registerBatch = async (batchId, medicines) => {
     try {
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('batches')
             .insert([
                 { batch_id: batchId, medicines: medicines }
-            ])
-            .select(); // Use .select() to get the inserted data
+            ]);
 
         if (error) {
             throw new Error(error.message);
@@ -53,7 +52,6 @@ export const getBatch = async (batchId) => {
             throw new Error(error.message);
         }
         
-        // Logic to check status based on the retrieved data
         let currentStatus = data.status;
         const now = new Date();
         const isExpired = data.medicines.some(med => new Date(med.expiryDate) < now);
@@ -76,11 +74,10 @@ export const getBatch = async (batchId) => {
  */
 export const setRecalled = async (batchId) => {
     try {
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('batches')
             .update({ status: 'Recalled' })
-            .eq('batch_id', batchId)
-            .select();
+            .eq('batch_id', batchId);
 
         if (error) {
             throw new Error(error.message);
